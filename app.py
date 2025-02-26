@@ -12,18 +12,18 @@ from sklearn.model_selection import train_test_split
 # **1. Load Model Berdasarkan Dataset**
 def load_model(dataset):
     model_files = {
-        "X": "Model\\modelx.h5",
-        "YT": "Model\\modelyt.h5",
-        "TikTok": "Model\\modeltk.h5"
+        "X": "Model/modelx.h5",
+        "YT": "Model/modelyt.h5",
+        "TikTok": "Model/modeltk.h5"
     }
     return tf.keras.models.load_model(model_files[dataset])
 
 # **2. Load Tokenizer Berdasarkan Dataset**
 def load_tokenizer(dataset):
     tokenizer_files = {
-        "X": "Tokenizer\\tokenizerx.pkl",
-        "YT": "Tokenizer\\tokenizeryt.pkl",
-        "TikTok": "Tokenizer\\tokenizertk.pkl"
+        "X": "Tokenizer/tokenizerx.pkl",
+        "YT": "Tokenizer/tokenizeryt.pkl",
+        "TikTok": "Tokenizer/tokenizertk.pkl"
     }
     
     with open(tokenizer_files[dataset], "rb") as f:
@@ -34,9 +34,9 @@ def load_tokenizer(dataset):
 # **3. Load Data Uji Berdasarkan Dataset**
 def load_test_data(dataset, test_size=0.20):
     dataset_files = {
-        "X": "Dataset\\x.csv",
-        "YT": "Dataset\\yt.csv",
-        "TikTok": "Dataset\\tk.csv"
+        "X": "Dataset/x.csv",
+        "YT": "Dataset/yt.csv",
+        "TikTok": "Dataset/tk.csv"
     }
     
     df = pd.read_csv(dataset_files[dataset])
