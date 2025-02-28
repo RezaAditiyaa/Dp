@@ -61,7 +61,52 @@ def get_evaluation_metrics(dataset):
 
     return y_true, y_pred, texts, df
 
-# **6. Fungsi untuk Membuat Word Cloud**
+# **6. Fungsi untuk Menampilkan Tabel Klasifikasi Report**
+def show_classification_report(dataset):
+    report_data = {
+        "X": [
+            ["Negative", 0.88, 0.88, 0.88, 290],
+            ["Positive", 0.88, 0.88, 0.88, 280],
+            ["Accuracy", "-", "-", 0.88, 570],
+            ["Macro Avg", 0.88, 0.88, 0.88, 570],
+            ["Weighted Avg", 0.88, 0.88, 0.88, 570]
+        ],
+        "YT": [
+            ["Negative", 0.86, 0.84, 0.85, 332],
+            ["Positive", 0.84, 0.86, 0.85, 322],
+            ["Accuracy", "-", "-", 0.85, 654],
+            ["Macro Avg", 0.85, 0.85, 0.85, 654],
+            ["Weighted Avg", 0.85, 0.85, 0.85, 654]
+        ],
+        "TikTok": [
+            ["Negative", 0.87, 0.91, 0.89, 395],
+            ["Positive", 0.75, 0.67, 0.71, 159],
+            ["Accuracy", "-", "-", 0.84, 554],
+            ["Macro Avg", 0.81, 0.79, 0.80, 554],
+            ["Weighted Avg", 0.84, 0.84, 0.84, 554]
+        ]
+    }
+
+    df_report = pd.DataFrame(
+        report_data[dataset],
+        columns=["Class", "Precision", "Recall", "F1-Score", "Support"]
+    )
+    df_report[["Precision", "Recall", "F1-Score"]] = df_report[["Precision", "Recall", "F1-Score"]].applymap(lambda x: f"{x:.2f}" if isinstance(x, float) else x)
+    st.subheader(f"📋 Klasifikasi Report - {dataset}")
+    st.table(df_report)
+
+# **7. Fungsi untuk Menampilkan Confusion Matrix**
+def show_confusion_matrix(dataset):
+    image_files = {
+        "X": "xmatrix.png",
+        "YT": "ytmatrix.png",
+        "TikTok": "tkmatrix.png"
+    }
+
+    st.subheader(f"📊 Confusion Matrix - {dataset}")
+    st.image(image_files[dataset], use_container_width=True)  # Menggunakan use_container_width
+
+# **8. Fungsi untuk Membuat Word Cloud**
 def show_wordcloud(texts, title):
     text = " ".join(texts)
     wordcloud = WordCloud(
@@ -79,7 +124,7 @@ def show_wordcloud(texts, title):
     st.subheader(title)
     st.pyplot(fig)
 
-# **7. Fungsi untuk Menampilkan Dataset**
+# **9. Fungsi untuk Menampilkan Dataset**
 def show_full_dataset(df, dataset_name):
     st.subheader(f"📜 Dataset {dataset_name}")
 
@@ -87,7 +132,7 @@ def show_full_dataset(df, dataset_name):
 
     st.dataframe(df[["lower_text", "Sentimen"]], height=300)
 
-# **8. Streamlit UI**
+# **10. Streamlit UI**
 st.title("📊 Analisis Sentimen Visi Indonesia Emas 2045")
 
 # Pilihan dataset (bisa memilih lebih dari satu)
@@ -107,31 +152,11 @@ if st.button("Lihat Hasil"):
             y_true, y_pred, texts, df = get_evaluation_metrics(dataset)
             show_full_dataset(df, dataset)
 
-            # **2️⃣ Statistik Data**
-            st.subheader("📊 Statistik Data")
-            st.write(f"🔹 **Total Data Uji**: {len(y_true)}")
-            st.write(f"🔹 **Total Negatif**: {sum(y_true == 0)}")
-            st.write(f"🔹 **Total Positif**: {sum(y_true == 1)}")
+            # **2️⃣ Tampilkan Tabel Klasifikasi Report**
+            show_classification_report(dataset)
 
-            # **3️⃣ Distribusi Sentimen (Pie Chart)**
-            st.subheader("📊 Distribusi Sentimen")
-            sentiment_counts = pd.Series(y_true).value_counts().sort_index()
-            labels = ["Negatif", "Positif"]
-            colors = plt.cm.coolwarm(np.linspace(0.2, 0.8, len(labels))) 
-
-            fig, ax = plt.subplots(figsize=(5, 5))
-            ax.pie(
-                sentiment_counts,
-                labels=labels,
-                autopct='%1.1f%%',
-                colors=colors,
-                startangle=140,
-                shadow=True,
-                explode=(0.05, 0.05),
-                wedgeprops={'edgecolor': 'black'}
-            )
-            ax.axis("equal")
-            st.pyplot(fig)
+            # **3️⃣ Tampilkan Confusion Matrix**
+            show_confusion_matrix(dataset)
 
     # **4️⃣ Word Cloud Ditampilkan Sejajar**
     st.subheader("☁️ Word Cloud")
