@@ -106,7 +106,7 @@ def show_confusion_matrix(dataset):
     }
 
     st.subheader (f"📊 Confusion Matrix {dataset}")
-    st.image(image_files[dataset], use_container_width=True)  
+    st.image(image_files[dataset], use_column_width=True)  
 
 # **8. Fungsi untuk Menampilkan Distribusi Sentimen (Pie Chart)**
 def show_sentiment_distribution(y_true, dataset):
