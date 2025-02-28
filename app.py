@@ -92,7 +92,7 @@ def show_classification_report(dataset):
         columns=["Class", "Precision", "Recall", "F1-Score", "Support"]
     )
     df_report[["Precision", "Recall", "F1-Score"]] = df_report[["Precision", "Recall", "F1-Score"]].applymap(lambda x: f"{x:.2f}" if isinstance(x, float) else x)
-    st.subheader(f"📋 Klasifikasi Report - {dataset}")
+    st.subheader(f"📋 Classification Report - {dataset}")
     st.table(df_report)
 
 # **7. Fungsi untuk Menampilkan Confusion Matrix**
@@ -104,9 +104,31 @@ def show_confusion_matrix(dataset):
     }
 
     st.subheader(f"📊 Confusion Matrix - {dataset}")
-    st.image(image_files[dataset], use_container_width=True)  # Menggunakan use_container_width
+    st.image(image_files[dataset], use_container_width=True)  
 
-# **8. Fungsi untuk Membuat Word Cloud**
+# **8. Fungsi untuk Menampilkan Distribusi Sentimen (Pie Chart)**
+def show_sentiment_distribution(y_true, dataset):
+    st.subheader(f"📊 Distribusi Sentimen - {dataset}")
+    sentiment_counts = pd.Series(y_true).value_counts().sort_index()
+    
+    labels = ["Negatif", "Positif"]
+    colors = plt.cm.coolwarm(np.linspace(0.2, 0.8, len(labels)))  
+
+    fig, ax = plt.subplots(figsize=(5, 5))
+    ax.pie(
+        sentiment_counts,
+        labels=labels,
+        autopct='%1.1f%%',
+        colors=colors,
+        startangle=140,
+        shadow=True,
+        explode=(0.05, 0.05),
+        wedgeprops={'edgecolor': 'black'}
+    )
+    ax.axis("equal")
+    st.pyplot(fig)
+
+# **9. Fungsi untuk Membuat Word Cloud**
 def show_wordcloud(texts, title):
     text = " ".join(texts)
     wordcloud = WordCloud(
@@ -124,25 +146,17 @@ def show_wordcloud(texts, title):
     st.subheader(title)
     st.pyplot(fig)
 
-# **9. Fungsi untuk Menampilkan Dataset**
-def show_full_dataset(df, dataset_name):
-    st.subheader(f"📜 Dataset {dataset_name}")
-
-    df["Sentimen"] = df["polarity"].map({1: "Positif", 0: "Negatif"})
-
-    st.dataframe(df[["lower_text", "Sentimen"]], height=300)
-
 # **10. Streamlit UI**
 st.title("📊 Analisis Sentimen Visi Indonesia Emas 2045")
 
-# Pilihan dataset (bisa memilih lebih dari satu)
+# Pilihan dataset
 selected_datasets = st.multiselect("📂 Pilih Dataset:", ["X", "YT", "TikTok"], default=["X", "YT", "TikTok"])
 
 # Tombol lihat hasil analisis
 if st.button("Lihat Hasil"):
     st.subheader("📊 Hasil Analisis Sentimen")
 
-    columns = st.columns(len(selected_datasets))  # Buat kolom sejajar berdasarkan jumlah dataset yang dipilih
+    columns = st.columns(len(selected_datasets))  
     
     for i, dataset in enumerate(selected_datasets):
         with columns[i]:  
@@ -150,7 +164,12 @@ if st.button("Lihat Hasil"):
 
             # **1️⃣ Tampilkan Dataset**
             y_true, y_pred, texts, df = get_evaluation_metrics(dataset)
-            show_full_dataset(df, dataset)
+            
+            # **1️⃣.1️⃣ Tampilkan Tabel Dataset**
+            st.subheader(f"📄 Dataset - {dataset}")
+            df_display = df[["lower_text", "polarity"]]
+            df_display["polarity"] = df_display["polarity"].replace({1: "Positif", 0: "Negatif"})
+            st.dataframe(df_display, height=400)  # Dapat di-scroll ke bawah
 
             # **2️⃣ Tampilkan Tabel Klasifikasi Report**
             show_classification_report(dataset)
@@ -158,7 +177,9 @@ if st.button("Lihat Hasil"):
             # **3️⃣ Tampilkan Confusion Matrix**
             show_confusion_matrix(dataset)
 
-    # **4️⃣ Word Cloud Ditampilkan Sejajar**
+            # **4️⃣ Tampilkan Distribusi Sentimen**
+            show_sentiment_distribution(y_true, dataset)
+
     st.subheader("☁️ Word Cloud")
     wc_columns = st.columns(len(selected_datasets))
 
