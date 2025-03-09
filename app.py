@@ -131,22 +131,14 @@ def show_sentiment_distribution(y_true, dataset):
     st.pyplot(fig)
 
 # **9. Fungsi untuk Membuat Word Cloud**
-def show_wordcloud(texts, title):
-    text = " ".join(texts)
-    wordcloud = WordCloud(
-        width=800, height=400, 
-        background_color="white", 
-        colormap="coolwarm", 
-        max_words=200, 
-        contour_color="steelblue", 
-        contour_width=2
-    ).generate(text)
-
-    fig, ax = plt.subplots(figsize=(6, 3))
-    ax.imshow(wordcloud, interpolation="bilinear")
-    ax.axis("off")
-    st.subheader (title)
-    st.pyplot(fig)
+def show_wordcloud_image(dataset, sentiment_type):
+    image_files = {
+        "X": {"all": "wcx.png", "positive": "wcx1.png", "negative": "wcx0.png"},
+        "Youtube": {"all": "wcyt.png", "positive": "wcyt1.png", "negative": "wcyt0.png"},
+        "Tiktok": {"all": "wctk.png", "positive": "wctk1.png", "negative": "wctk0.png"}
+    }
+    image_path = image_files[dataset][sentiment_type]
+    st.image(image_path, caption=f"Word Cloud - {dataset} ({sentiment_type.capitalize()})", use_column_width=True)
 
 # **10. Streamlit UI**
 st.title("📊 Analisis Sentimen Visi Indonesia Emas 2045")
@@ -182,23 +174,19 @@ if st.button("Lihat Hasil"):
             # **4️⃣ Tampilkan Distribusi Sentimen**
             show_sentiment_distribution(y_true, dataset)
 
-    st.subheader ("☁️ Word Cloud")
+    st.subheader("☁️ Word Cloud")
     wc_columns = st.columns(len(selected_datasets))
 
     for i, dataset in enumerate(selected_datasets):
         with wc_columns[i]:
-            y_true, _, texts, _ = get_evaluation_metrics(dataset)
-            
-            st.markdown(f"### {dataset} Semua Opini")
-            show_wordcloud(texts, f"🌍 {dataset} Semua Opini")
+            st.markdown(f"### {dataset} - Semua Opini")
+            show_wordcloud_image(dataset, "all")
 
-            positive_texts = [text for text, label in zip(texts, y_true) if label == 1]
-            negative_texts = [text for text, label in zip(texts, y_true) if label == 0]
+            st.markdown(f"### {dataset} - Positif")
+            show_wordcloud_image(dataset, "positive")
 
-            if positive_texts:
-                show_wordcloud(positive_texts, f"🌟 {dataset} Positif")
-            if negative_texts:
-                show_wordcloud(negative_texts, f"⚠️ {dataset} Negatif")
+            st.markdown(f"### {dataset} - Negatif")
+            show_wordcloud_image(dataset, "negative")
 
 st.write("🚀 Pilih dataset dan klik 'Lihat Hasil' untuk melihat analisis sentimen.")
 
